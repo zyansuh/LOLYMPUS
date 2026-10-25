@@ -98,7 +98,7 @@ export function traceColumn(ladder: Pick<Ladder, 'rungs' | 'rowCount'>, startCol
   return column
 }
 
-export function columnX(column: number, colWidth = ladderMetrics.colWidth): number {
+export function columnX(column: number, colWidth: number = ladderMetrics.colWidth): number {
   return column * colWidth + colWidth / 2
 }
 
