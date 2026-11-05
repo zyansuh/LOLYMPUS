@@ -3,7 +3,7 @@ import { compositionsEqual, isBetterReshuffle, teamGroups } from './composition.
 import { createDraw, MAX_RESHUFFLE_ATTEMPTS, type DrawResult } from './draw.ts'
 import { formatResultText } from './format.ts'
 import { buildPathPoints, ladderMetrics, rungsAreValid, traceColumn } from './ladder.ts'
-import { addMemberNames, removeMemberFromState, renameMember, splitNameInput } from './members.ts'
+import { addMemberNames, clearMembers, removeMemberFromState, renameMember, splitNameInput } from './members.ts'
 import { describePlan, matchSizes } from './plan.ts'
 import { mulberry32 } from './random.ts'
 import { selectAllIds, toggleSelected } from './selection.ts'
@@ -220,6 +220,37 @@ describe('멤버와 선택', () => {
     )
     expect(next.members.map((member) => member.id)).toEqual(['b'])
     expect(next.selectedIds).toEqual(['b'])
+  })
+
+  it('목록을 비우면 멤버와 선택이 함께 사라지고 공개된 결과는 남는다', () => {
+    const result = { id: 'round-1' }
+    const cleared = clearMembers({
+      version: 1,
+      members: [
+        { id: 'a', name: '단비' },
+        { id: 'b', name: '해상' },
+      ],
+      selectedIds: ['a', 'b'],
+      revealed: true,
+      currentResult: result as never,
+      history: [],
+    })
+    expect(cleared.members).toEqual([])
+    expect(cleared.selectedIds).toEqual([])
+    expect(cleared.currentResult).toBe(result)
+    expect(cleared.history).toEqual([])
+  })
+
+  it('공개 전 사다리는 목록을 비우면 함께 지운다', () => {
+    const cleared = clearMembers({
+      version: 1,
+      members: [{ id: 'a', name: '단비' }],
+      selectedIds: ['a'],
+      revealed: false,
+      currentResult: { id: 'round-1' } as never,
+      history: [],
+    })
+    expect(cleared.currentResult).toBeNull()
   })
 
   it('31번째 선택은 기존 선택을 유지하고 31명 전체 선택은 막는다', () => {

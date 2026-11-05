@@ -20,6 +20,7 @@ type MemberManagerDialogProps = {
   onAddMany: (raw: string) => { message: string; clear: boolean }
   onRename: (id: string, name: string) => string | null
   onDelete: (id: string) => void
+  onClearAll: () => void
   returnFocusRef: RefObject<HTMLButtonElement | null>
 }
 
@@ -30,6 +31,7 @@ export function MemberManagerDialog({
   onAddMany,
   onRename,
   onDelete,
+  onClearAll,
   returnFocusRef,
 }: MemberManagerDialogProps) {
   const titleId = useId()
@@ -40,6 +42,7 @@ export function MemberManagerDialog({
   const [message, setMessage] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editingName, setEditingName] = useState('')
+  const [confirmClear, setConfirmClear] = useState(false)
 
   useEffect(() => {
     const dialog = dialogRef.current
@@ -123,6 +126,15 @@ export function MemberManagerDialog({
     }
   }
 
+  const clearList = () => {
+    onClearAll()
+    setConfirmClear(false)
+    setEditingId(null)
+    setEditingName('')
+    setQuery('')
+    setMessage('멤버 목록을 비웠어요.')
+  }
+
   const onBackdropMouseDown = (event: MouseEvent<HTMLDivElement>) => {
     if (event.target === event.currentTarget) onClose()
   }
@@ -191,7 +203,33 @@ export function MemberManagerDialog({
             />
           </div>
 
-          <h3 className="section-label">등록된 멤버 {members.length}명</h3>
+          <div className="section-heading">
+            <h3 className="section-label">등록된 멤버 {members.length}명</h3>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              disabled={members.length === 0}
+              onClick={() => {
+                setConfirmClear(true)
+                setMessage(null)
+              }}
+            >
+              목록 비우기
+            </button>
+          </div>
+          {confirmClear && members.length > 0 ? (
+            <div className="form-message" role="status">
+              <p>등록된 멤버 {members.length}명을 모두 지울까요? 이전 라운드 기록은 남아요.</p>
+              <div className="button-row">
+                <button type="button" className="btn btn-primary" onClick={clearList}>
+                  목록 비우기
+                </button>
+                <button type="button" className="btn btn-secondary" onClick={() => setConfirmClear(false)}>
+                  취소
+                </button>
+              </div>
+            </div>
+          ) : null}
           {members.length === 0 ? (
             <p>등록된 멤버가 없어요.</p>
           ) : visibleMembers.length === 0 ? (

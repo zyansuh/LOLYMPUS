@@ -64,5 +64,12 @@ export function removeMemberFromState(state: AppState, id: string): AppState {
   }
 }
 
+export function clearMembers(state: AppState): AppState {
+  if (state.members.length === 0 && state.selectedIds.length === 0) return state
+  const cleared: AppState = { ...state, members: [], selectedIds: [] }
+  if (state.currentResult && !state.revealed) return { ...cleared, currentResult: null }
+  return cleared
+}
+
 export const DUPLICATE_NAME_MESSAGE =
   '같은 이름은 등록할 수 없어요. 동명이인은 구분되는 별칭으로 등록해주세요.'

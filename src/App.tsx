@@ -13,6 +13,7 @@ import { createId } from './lib/id.ts'
 import {
   DUPLICATE_NAME_MESSAGE,
   addMemberNames,
+  clearMembers,
   normalizeName,
   removeMemberFromState,
   renameMember,
@@ -302,6 +303,12 @@ function App() {
     })
   }
 
+  const clearAllMembers = () => {
+    if (phaseRef.current === 'drawing') return
+    setHighlightId(null)
+    setState((current) => clearMembers(current))
+  }
+
   const showLadder = phase !== 'setup' && state.currentResult !== null
   const showResults = phase === 'done' && state.currentResult !== null
   const invalidated = state.currentResult !== null && state.revealed && phase === 'setup'
@@ -449,6 +456,7 @@ function App() {
           onAddMany={addMany}
           onRename={rename}
           onDelete={remove}
+          onClearAll={clearAllMembers}
           returnFocusRef={memberButtonRef}
         />
       ) : null}
