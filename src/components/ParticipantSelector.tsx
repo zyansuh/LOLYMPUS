@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { Member } from '../types.ts'
 import { MAX_PARTICIPANTS } from '../lib/selection.ts'
+import { sortByName } from '../lib/sortNames.ts'
 
 type ParticipantSelectorProps = {
   members: Member[]
@@ -24,13 +25,15 @@ export function ParticipantSelector({
   const [limitMessage, setLimitMessage] = useState<string | null>(null)
   const selected = new Set(selectedIds)
   const keyword = query.trim().toLocaleLowerCase()
-  const visibleMembers = members.filter((member) =>
-    member.name.toLocaleLowerCase().includes(keyword),
+  const visibleMembers = sortByName(
+    members.filter((member) => member.name.toLocaleLowerCase().includes(keyword)),
   )
-  const selectedMembers = selectedIds.flatMap((id) => {
-    const member = members.find((item) => item.id === id)
-    return member ? [member] : []
-  })
+  const selectedMembers = sortByName(
+    selectedIds.flatMap((id) => {
+      const member = members.find((item) => item.id === id)
+      return member ? [member] : []
+    }),
+  )
   const selectAllBlocked = members.length > MAX_PARTICIPANTS
 
   const toggle = (id: string) => {

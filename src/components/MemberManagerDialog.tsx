@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 import type { FormEvent, MouseEvent, RefObject } from 'react'
 import type { Member } from '../types.ts'
 import { DUPLICATE_NAME_MESSAGE } from '../lib/members.ts'
+import { sortByName } from '../lib/sortNames.ts'
 
 const FOCUSABLE = [
   'a[href]',
@@ -45,9 +46,10 @@ export function MemberManagerDialog({
     const returnTo = returnFocusRef.current
     if (!dialog) return
 
-    const focusable = () =>
-      [...dialog.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(
-        (element) => !element.hasAttribute('disabled'),
+    const focusable = (): HTMLElement[] =>
+      Array.from(dialog.querySelectorAll(FOCUSABLE)).filter(
+        (element): element is HTMLElement =>
+          element instanceof HTMLElement && !element.hasAttribute('disabled'),
       )
 
     const frame = window.requestAnimationFrame(() => {
@@ -91,8 +93,10 @@ export function MemberManagerDialog({
     }
   }, [onClose, returnFocusRef])
 
-  const visibleMembers = members.filter((member) =>
-    member.name.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()),
+  const visibleMembers = sortByName(
+    members.filter((member) =>
+      member.name.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()),
+    ),
   )
 
   const submitOne = (event: FormEvent) => {
